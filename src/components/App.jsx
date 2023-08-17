@@ -6,24 +6,24 @@ import { BrowserRouter, Routes, Route, useParams, useNavigate } from "react-rout
 import NavBar from "./NavBar"
 import ShowEntry from "./ShowEntry"
 
-const seedEntries = [
-  { category: "Food", content: "Pizza is yummy!" },
-  { category: "Coding", content: "Coding is fun!" },
-  { category: "Gaming", content: "Skyrim is for the Nords!" },
-]
+// const seedEntries = [
+//   { category: "Food", content: "Pizza is yummy!" },
+//   { category: "Coding", content: "Coding is fun!" },
+//   { category: "Gaming", content: "Skyrim is for the Nords!" },
+// ]
 
 const App = () => {
   const nav = useNavigate()
   const [entries, setEntries] = useState([])
 
   useEffect(() => {
-    // closure
-    (async () => { 
-    const res = await fetch('${import.meta.env.VITE_API_HOST}/entries') 
-    const data = await res.json()
+    // IIFE
+    (async () => {
+      const res = await fetch(`${import.meta.env.VITE_API_HOST}/entries`)
+      const data = await res.json()
       setEntries(data)
     })()
-    // getEntries
+    // getEntries()
   }, [])
 
   // HOC (higher-order component)
@@ -35,12 +35,12 @@ const App = () => {
   async function addEntry(category, content) {
     const id = entries.length
     // Add a new entry
-    const returnedEntry = await fetch('http://localhost:4001/entries', { 
-      method: 'POST',
+    const returnedEntry = await fetch(`${import.meta.env.VITE_API_HOST}/entries`, {
+      method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ category, content })
+      body: JSON.stringify({ category, content }),
     })
     setEntries([...entries, await returnedEntry.json()])
     nav(`/entry/${id}`)
