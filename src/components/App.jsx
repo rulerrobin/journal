@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react"
+import React, { useEffect, useReducer } from "react"
 import Home from "./Home"
 import CategorySelection from "./CategorySelection"
 import NewEntry from "./NewEntry"
@@ -14,39 +14,44 @@ import ShowEntry from "./ShowEntry"
 
 function reducer(currentState, action) {
   switch (action.type) {
-    case 'setEntries':
+    case "setEntries":
       return {
         ...currentState,
-        entries: action.entries 
+        entries: action.entries,
+      }
+    case "addEntry":
+      return {
+        ...currentState,
+        entries: [...currentState.entries, action.entry]
       }
     default:
       return currentState
   }
 }
 
-const intitialState = {
+const initialState = {
   entries: [],
-  categories: []
+  categories: [],
 }
 
 const App = () => {
   const nav = useNavigate()
-  const [entries, setEntries] = useState([])
-  // dispatch is not a keyword
-  const [store, dispatch] = useReducer(reducer, intitialState) // current state, dispatcher (action to do sent from the reducer)
+  // const [entries, setEntries] = useState([])
+
+  const [store, dispatch] = useReducer(reducer, initialState)
+  // current state, dispatcher (action to do sent from the reducer)
   // initial state is the copy of the above added to dispatch
+  const { entries } = store
 
   useEffect(() => {
     // IIFE
-    (async () => {
+    ;(async () => {
       const res = await fetch(`${import.meta.env.VITE_API_HOST}/entries`)
       const data = await res.json()
-
-    // getEntries()
-    setEntries
-    dispatch({
-      type: 'setEntries',
-      entries: data,
+      dispatch({
+        type: "setEntries",
+        entries: data,
+      })
     })()
   }, [])
 
@@ -66,11 +71,10 @@ const App = () => {
       },
       body: JSON.stringify({ category, content }),
     })
-    setEntries
     dispatch({
-      type: 'setEntries',
-      entries: data,
-    })()
+      type: "addEntry",
+      entry: await returnedEntry.json(),
+    })
     nav(`/entry/${id}`)
   }
 
@@ -91,3 +95,4 @@ const App = () => {
 }
 
 export default App
+
