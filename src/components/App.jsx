@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useReducer, useState } from "react"
 import Home from "./Home"
 import CategorySelection from "./CategorySelection"
 import NewEntry from "./NewEntry"
@@ -12,18 +12,42 @@ import ShowEntry from "./ShowEntry"
 //   { category: "Gaming", content: "Skyrim is for the Nords!" },
 // ]
 
+function reducer(currentState, action) {
+  switch (action.type) {
+    case 'setEntries':
+      return {
+        ...currentState,
+        entries: action.entries 
+      }
+    default:
+      return currentState
+  }
+}
+
+const intitialState = {
+  entries: [],
+  categories: []
+}
+
 const App = () => {
   const nav = useNavigate()
   const [entries, setEntries] = useState([])
+  // dispatch is not a keyword
+  const [store, dispatch] = useReducer(reducer, intitialState) // current state, dispatcher (action to do sent from the reducer)
+  // initial state is the copy of the above added to dispatch
 
   useEffect(() => {
     // IIFE
     (async () => {
       const res = await fetch(`${import.meta.env.VITE_API_HOST}/entries`)
       const data = await res.json()
-      setEntries(data)
-    })()
+
     // getEntries()
+    setEntries
+    dispatch({
+      type: 'setEntries',
+      entries: data,
+    })()
   }, [])
 
   // HOC (higher-order component)
@@ -42,7 +66,11 @@ const App = () => {
       },
       body: JSON.stringify({ category, content }),
     })
-    setEntries([...entries, await returnedEntry.json()])
+    setEntries
+    dispatch({
+      type: 'setEntries',
+      entries: data,
+    })()
     nav(`/entry/${id}`)
   }
 
